@@ -1,41 +1,40 @@
-const express = require("express");
-const multer = require("multer");
-const cors = require("cors");
-const path = require("path");
-const fs = require("fs"); // Import file system module
+const express = require('express');
+const multer = require('multer');
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs'); // Import file system module
 
-const mysql = require("mysql2"); // install this on the node modules of the front end
+const mysql = require('mysql2'); // install this on the node modules of the front end
 
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const xlsx = require("xlsx");
-const moment = require("moment");
-const pageRoutes = require('./pageRoutes'); // Path for the Routes 
-
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const xlsx = require('xlsx');
+const moment = require('moment');
+const pageRoutes = require('./pageRoutes'); // Path for the Routes
 
 const app = express();
 const port = 5000;
 
 app.use(express.json());
 app.use(cors());
-app.use("/uploads", express.static("uploads")); // Serve logo images
+app.use('/uploads', express.static('uploads')); // Serve logo images
 app.use('/api', pageRoutes); // Use the page routes under /api
 
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "earistt",
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'earistt',
 });
 
 db.connect((err) => {
   if (err) throw err;
-  console.log("Database Connected");
+  console.log('Database Connected');
 });
 
 // File upload config
 const storage = multer.diskStorage({
-  destination: "./uploads/",
+  destination: './uploads/',
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));
   },
@@ -48,8 +47,8 @@ const upload = multer({ storage });
 // =====================
 
 // Get company settings
-app.get("/api/settings", (req, res) => {
-  db.query("SELECT * FROM company_settings WHERE id = 1", (err, result) => {
+app.get('/api/settings', (req, res) => {
+  db.query('SELECT * FROM company_settings WHERE id = 1', (err, result) => {
     if (err) throw err;
     res.send(result[0]);
   });
@@ -80,7 +79,7 @@ const deleteOldLogo = (logoUrl) => {
 // VERIFY USER START HERE
 //=======================
 //Register
-app.post("/register", async (req, res) => {
+app.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -88,30 +87,34 @@ app.post("/register", async (req, res) => {
 
   db.query(query, [username, email, hashedPassword], (err, result) => {
     if (err) return res.status(500).send(err);
-    res.status(200).send({ message: "User Registered" });
+    res.status(200).send({ message: 'User Registered' });
   });
 });
-
-
-
-
 
 // Login endpoint
 // Login endpoint
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-  db.query('SELECT * FROM users WHERE username = ?', [username], (err, users) => {
-    if (err || users.length === 0) return res.status(404).send('User not found');
-    const user = users[0];
-    const isPasswordValid = bcrypt.compareSync(password, user.password);
-    if (!isPasswordValid) return res.status(401).send('Invalid password');
+  db.query(
+    'SELECT * FROM users WHERE username = ?',
+    [username],
+    (err, users) => {
+      if (err || users.length === 0)
+        return res.status(404).send('User not found');
+      const user = users[0];
+      const isPasswordValid = bcrypt.compareSync(password, user.password);
+      if (!isPasswordValid) return res.status(401).send('Invalid password');
 
-    // Include userId in the response
-    const token = jwt.sign({ id: user.id, accessLevel: user.access_level }, 'secret', { expiresIn: 86400 });
-    res.status(200).send({ token, userId: user.id }); // Send userId with token
-  });
+      // Include userId in the response
+      const token = jwt.sign(
+        { id: user.id, accessLevel: user.access_level },
+        'secret',
+        { expiresIn: 86400 }
+      );
+      res.status(200).send({ token, userId: user.id }); // Send userId with token
+    }
+  );
 });
-
 
 //=======================
 // VERIFY USER END HERE
@@ -125,8 +128,8 @@ app.post('/login', (req, res) => {
 
 // Voluntary Table Start Here!
 // Read (Get All voluntary-work)
-app.get("/voluntary-work", (req, res) => {
-  const query = "SELECT * FROM voluntary_work";
+app.get('/voluntary-work', (req, res) => {
+  const query = 'SELECT * FROM voluntary_work';
   db.query(query, (err, result) => {
     if (err) return res.status(500).send(err);
     res.status(200).send(result);
@@ -134,45 +137,45 @@ app.get("/voluntary-work", (req, res) => {
 });
 
 // Create (Add New voluntary-work)
-app.post("/voluntary-work", (req, res) => {
+app.post('/voluntary-work', (req, res) => {
   const { nameAndAddress, dateFrom, dateTo, numberOfHours, numberOfWorks } =
     req.body;
   const query =
-    "INSERT INTO voluntary_work (nameAndAddress, dateFrom, dateTo, numberOfHours, numberOfWorks) VALUES (?, ?, ?, ?, ?)";
+    'INSERT INTO voluntary_work (nameAndAddress, dateFrom, dateTo, numberOfHours, numberOfWorks) VALUES (?, ?, ?, ?, ?)';
   db.query(
     query,
     [nameAndAddress, dateFrom, dateTo, numberOfHours, numberOfWorks],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(201).send({ message: "Item created", id: result.insertId });
+      res.status(201).send({ message: 'Item created', id: result.insertId });
     }
   );
 });
 
 // Update item voluntary-work
-app.put("/voluntary-work/:id", (req, res) => {
+app.put('/voluntary-work/:id', (req, res) => {
   const { nameAndAddress, dateFrom, dateTo, numberOfHours, numberOfWorks } =
     req.body;
   const { id } = req.params;
   const query =
-    "UPDATE voluntary_work SET nameAndAddress = ?, dateFrom = ?, dateTo = ?, numberOfHours = ?, numberOfWorks = ? WHERE id = ?";
+    'UPDATE voluntary_work SET nameAndAddress = ?, dateFrom = ?, dateTo = ?, numberOfHours = ?, numberOfWorks = ? WHERE id = ?';
   db.query(
     query,
     [nameAndAddress, dateFrom, dateTo, numberOfHours, numberOfWorks, id],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(200).send({ message: "Item updated" });
+      res.status(200).send({ message: 'Item updated' });
     }
   );
 });
 
 // Delete item Voluntary
-app.delete("/voluntary-work/:id", (req, res) => {
+app.delete('/voluntary-work/:id', (req, res) => {
   const { id } = req.params;
-  const query = "DELETE FROM voluntary_work WHERE id = ?";
+  const query = 'DELETE FROM voluntary_work WHERE id = ?';
   db.query(query, [id], (err, result) => {
     if (err) return res.status(500).send(err);
-    res.status(200).send({ message: "Item deleted" });
+    res.status(200).send({ message: 'Item deleted' });
   });
 });
 // VOLUNTARY TABLE END HERE.
@@ -182,8 +185,8 @@ app.delete("/voluntary-work/:id", (req, res) => {
 
 // Learning and Development Table Start Here!
 // Read all Learning and Development
-app.get("/learning-and-development", (req, res) => {
-  const query = "SELECT * FROM learning_and_development";
+app.get('/learning-and-development', (req, res) => {
+  const query = 'SELECT * FROM learning_and_development';
   db.query(query, (err, result) => {
     if (err) return res.status(500).send(err);
     res.status(200).send(result);
@@ -191,7 +194,7 @@ app.get("/learning-and-development", (req, res) => {
 });
 
 // Add items for Learning and Development
-app.post("/learning-and-development", (req, res) => {
+app.post('/learning-and-development', (req, res) => {
   const {
     titleOfProgram,
     dateFrom,
@@ -201,7 +204,7 @@ app.post("/learning-and-development", (req, res) => {
     conductedSponsored,
   } = req.body;
   const query =
-    "INSERT INTO learning_and_development(titleOfProgram, dateFrom, dateTo, numberOfHours, typeOfLearningDevelopment, conductedSponsored) VALUES (?, ?, ?, ?, ?, ?)";
+    'INSERT INTO learning_and_development(titleOfProgram, dateFrom, dateTo, numberOfHours, typeOfLearningDevelopment, conductedSponsored) VALUES (?, ?, ?, ?, ?, ?)';
   db.query(
     query,
     [
@@ -214,13 +217,13 @@ app.post("/learning-and-development", (req, res) => {
     ],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(201).send({ message: "Item created", id: result.insertId });
+      res.status(201).send({ message: 'Item created', id: result.insertId });
     }
   );
 });
 
 // Update the learning and development
-app.put("/learning-and-development/:id", (req, res) => {
+app.put('/learning-and-development/:id', (req, res) => {
   const {
     titleOfProgram,
     dateFrom,
@@ -231,7 +234,7 @@ app.put("/learning-and-development/:id", (req, res) => {
   } = req.body;
   const { id } = req.params;
   const query =
-    "UPDATE learning_and_development SET titleOfProgram = ?, dateFrom = ?, dateTo = ?, numberOfHours = ?, typeOfLearningDevelopment = ?, conductedSponsored = ? WHERE id = ?";
+    'UPDATE learning_and_development SET titleOfProgram = ?, dateFrom = ?, dateTo = ?, numberOfHours = ?, typeOfLearningDevelopment = ?, conductedSponsored = ? WHERE id = ?';
   db.query(
     query,
     [
@@ -245,26 +248,26 @@ app.put("/learning-and-development/:id", (req, res) => {
     ],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(200).send({ message: "Item updated" });
+      res.status(200).send({ message: 'Item updated' });
     }
   );
 });
 
 // Delete the item for learning and development
-app.delete("/learning-and-development/:id", (req, res) => {
+app.delete('/learning-and-development/:id', (req, res) => {
   const { id } = req.params;
-  const query = "DELETE FROM learning_and_development WHERE id = ?";
+  const query = 'DELETE FROM learning_and_development WHERE id = ?';
   db.query(query, [id], (err, result) => {
     if (err) return res.status(500).send(err);
-    res.status(200).send({ message: "Item deleted" });
+    res.status(200).send({ message: 'Item deleted' });
   });
 });
 // LEARNING AND DEVELOPMENT TABLE END HERE.
 
 // ELIGIBILITIY TABLE START HERE!
 // Read all Elegibility Table
-app.get("/eligibility", (req, res) => {
-  const query = "SELECT * FROM eligibility";
+app.get('/eligibility', (req, res) => {
+  const query = 'SELECT * FROM eligibility';
   db.query(query, (err, result) => {
     if (err) return res.status(500).send(err);
     res.status(200).send(result);
@@ -272,7 +275,7 @@ app.get("/eligibility", (req, res) => {
 });
 
 // Add item Elegibility Table
-app.post("/eligibility", (req, res) => {
+app.post('/eligibility', (req, res) => {
   const {
     eligibilityName,
     eligibilityRating,
@@ -281,7 +284,7 @@ app.post("/eligibility", (req, res) => {
     dateOfValidity,
   } = req.body;
   const query =
-    "INSERT INTO eligibility (eligibilityName, eligibilityRating, eligibilityDateOfExam, licenseNumber, dateOfValidity) VALUES (?, ?, ?, ?, ?)";
+    'INSERT INTO eligibility (eligibilityName, eligibilityRating, eligibilityDateOfExam, licenseNumber, dateOfValidity) VALUES (?, ?, ?, ?, ?)';
   db.query(
     query,
     [
@@ -293,13 +296,13 @@ app.post("/eligibility", (req, res) => {
     ],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(201).send({ message: "Item created", id: result.insertId });
+      res.status(201).send({ message: 'Item created', id: result.insertId });
     }
   );
 });
 
 // Update item Elegibility Table
-app.put("/eligibility/:id", (req, res) => {
+app.put('/eligibility/:id', (req, res) => {
   const {
     eligibilityName,
     eligibilityRating,
@@ -309,7 +312,7 @@ app.put("/eligibility/:id", (req, res) => {
   } = req.body;
   const { id } = req.params;
   const query =
-    "UPDATE eligibility SET eligibilityName = ?, eligibilityRating = ?, eligibilityDateOfExam = ?, licenseNumber = ?, dateOfValidity = ? WHERE id = ?";
+    'UPDATE eligibility SET eligibilityName = ?, eligibilityRating = ?, eligibilityDateOfExam = ?, licenseNumber = ?, dateOfValidity = ? WHERE id = ?';
   db.query(
     query,
     [
@@ -322,72 +325,290 @@ app.put("/eligibility/:id", (req, res) => {
     ],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(200).send({ message: "Item updated" });
+      res.status(200).send({ message: 'Item updated' });
     }
   );
 });
 
 // Delete item Elegilitiy Table
-app.delete("/eligibility/:id", (req, res) => {
+app.delete('/eligibility/:id', (req, res) => {
   const { id } = req.params;
-  const query = "DELETE FROM eligibility WHERE id = ?";
+  const query = 'DELETE FROM eligibility WHERE id = ?';
   db.query(query, [id], (err, result) => {
     if (err) return res.status(500).send(err);
-    res.status(200).send({ message: "Item deleted" });
+    res.status(200).send({ message: 'Item deleted' });
   });
 });
 // ELIGIBILITY TABLE END HERE.
 
-// Person_Table START HERE!
-// app.get("/person-table", (req, res) => {
-//   const query = "SELECT * FROM person_table";
-//   db.query(query, (err, result) => {
-//     if (err) return res.status(500).send(err);
-//     res.status(200).send(result);
-//   });
-// });
+// Person Information START HERE!
+app.get('/personal-information', (req, res) => {
+  const query = 'SELECT * FROM person_table';
+  db.query(query, (err, result) => {
+    if (err) return res.status(500).send(err);
+    res.status(200).send(result);
+  });
+});
 
-// app.post("/person-table", (req, res) => {
-//   const {
-//     firstName, middleName, lastName, birthDate, civilStatus, heightM, weightKg, bloodType, gsisNum, pagibigNum, philhealthNum, sssNum, tinNum, agencyEmployeeNum, houseBlockLotNum, streetName, subdivisionOrVillage, barangayName, cityOrMunicipality, provinceName, zipcode, telephone, mobileNum, emailAddress, spouseFirstName, spouseMiddleName, spouseLastName, spouseNameExtension, spouseOccupation, spouseEmployerBusinessName, spouseBusinessAddress, spouseTelephone, fatherFirstName, fatherMiddleName, fatherLastName, fatherNameExtension, motherMaidenFirstName, motherMaidenMiddleName, motherMaidenLastName, elementaryNameOfSchool, elementaryDegree, elementaryPeriodFrom, elementaryPeriodTo, elementaryHighestAttained, elementaryYearGraduated, elementaryScholarshipAcademicHonorsReceived, secondaryNameOfSchool, secondaryDegree, secondaryPeriodFrom, secondaryPeriodTo, secondaryHighestAttained, secondaryYearGraduated, secondaryScholarshipAcademicHonorsReceived 
-//   } = req.body;
-//   const query =
-//     "INSERT INTO person_table (firstName, middleName, lastName, birthDate, civilStatus, heightM, weightKg, bloodType, gsisNum, pagibigNum, philhealthNum, sssNum, tinNum, agencyEmployeeNum, houseBlockLotNum, streetName, subdivisionOrVillage, barangayName, cityOrMunicipality, provinceName, zipcode, telephone, mobileNum, emailAddress, spouseFirstName, spouseMiddleName, spouseLastName, spouseNameExtension, spouseOccupation, spouseEmployerBusinessName, spouseBusinessAddress, spouseTelephone, fatherFirstName, fatherMiddleName, fatherLastName, fatherNameExtension, motherMaidenFirstName, motherMaidenMiddleName, motherMaidenLastName, elementaryNameOfSchool, elementaryDegree, elementaryPeriodFrom, elementaryPeriodTo, elementaryHighestAttained, elementaryYearGraduated, elementaryScholarshipAcademicHonorsReceived, secondaryNameOfSchool, secondaryDegree, secondaryPeriodFrom, secondaryPeriodTo, secondaryHighestAttained, secondaryYearGraduated, secondaryScholarshipAcademicHonorsReceived ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-//   db.query(
-//     query,
-//     [
-//       firstName, middleName, lastName, birthDate, civilStatus, heightM, weightKg, bloodType, gsisNum, pagibigNum, philhealthNum, sssNum, tinNum, agencyEmployeeNum, houseBlockLotNum, streetName, subdivisionOrVillage, barangayName, cityOrMunicipality, provinceName, zipcode, telephone, mobileNum, emailAddress, spouseFirstName, spouseMiddleName, spouseLastName, spouseNameExtension, spouseOccupation, spouseEmployerBusinessName, spouseBusinessAddress, spouseTelephone, fatherFirstName, fatherMiddleName, fatherLastName, fatherNameExtension, motherMaidenFirstName, motherMaidenMiddleName, motherMaidenLastName, elementaryNameOfSchool, elementaryDegree, elementaryPeriodFrom, elementaryPeriodTo, elementaryHighestAttained, elementaryYearGraduated, elementaryScholarshipAcademicHonorsReceived, secondaryNameOfSchool, secondaryDegree, secondaryPeriodFrom, secondaryPeriodTo, secondaryHighestAttained, secondaryYearGraduated, secondaryScholarshipAcademicHonorsReceived
-//     ],
-//     (err, result) => {
-//       if (err) return res.status(500).send(err);
-//       res.status(201).send({ message: "Item created", id: result.insertId });
-//     }
-//   );
-// });
+app.post('/personal-information', (req, res) => {
+  const {
+    firstName,
+    middleName,
+    lastName,
+    birthDate,
+    civilStatus,
+    heightM,
+    weightKg,
+    bloodType,
+    gsisNum,
+    pagibigNum,
+    philhealthNum,
+    sssNum,
+    tinNum,
+    agencyEmployeeNum,
+    houseBlockLotNum,
+    streetName,
+    subdivisionOrVillage,
+    barangayName,
+    cityOrMunicipality,
+    provinceName,
+    zipcode,
+    telephone,
+    mobileNum,
+    emailAddress,
+    spouseFirstName,
+    spouseMiddleName,
+    spouseLastName,
+    spouseNameExtension,
+    spouseOccupation,
+    spouseEmployerBusinessName,
+    spouseBusinessAddress,
+    spouseTelephone,
+    fatherFirstName,
+    fatherMiddleName,
+    fatherLastName,
+    fatherNameExtension,
+    motherMaidenFirstName,
+    motherMaidenMiddleName,
+    motherMaidenLastName,
+    elementaryNameOfSchool,
+    elementaryDegree,
+    elementaryPeriodFrom,
+    elementaryPeriodTo,
+    elementaryHighestAttained,
+    elementaryYearGraduated,
+    elementaryScholarshipAcademicHonorsReceived,
+    secondaryNameOfSchool,
+    secondaryDegree,
+    secondaryPeriodFrom,
+    secondaryPeriodTo,
+    secondaryHighestAttained,
+    secondaryYearGraduated,
+    secondaryScholarshipAcademicHonorsReceived,
+  } = req.body;
+  const query =
+    'INSERT INTO person_table (firstName, middleName, lastName, birthDate, civilStatus, heightM, weightKg, bloodType, gsisNum, pagibigNum, philhealthNum, sssNum, tinNum, agencyEmployeeNum, houseBlockLotNum, streetName, subdivisionOrVillage, barangayName, cityOrMunicipality, provinceName, zipcode, telephone, mobileNum, emailAddress, spouseFirstName, spouseMiddleName, spouseLastName, spouseNameExtension, spouseOccupation, spouseEmployerBusinessName, spouseBusinessAddress, spouseTelephone, fatherFirstName, fatherMiddleName, fatherLastName, fatherNameExtension, motherMaidenFirstName, motherMaidenMiddleName, motherMaidenLastName, elementaryNameOfSchool, elementaryDegree, elementaryPeriodFrom, elementaryPeriodTo, elementaryHighestAttained, elementaryYearGraduated, elementaryScholarshipAcademicHonorsReceived, secondaryNameOfSchool, secondaryDegree, secondaryPeriodFrom, secondaryPeriodTo, secondaryHighestAttained, secondaryYearGraduated, secondaryScholarshipAcademicHonorsReceived ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  db.query(
+    query,
+    [
+      firstName,
+      middleName,
+      lastName,
+      birthDate,
+      civilStatus,
+      heightM,
+      weightKg,
+      bloodType,
+      gsisNum,
+      pagibigNum,
+      philhealthNum,
+      sssNum,
+      tinNum,
+      agencyEmployeeNum,
+      houseBlockLotNum,
+      streetName,
+      subdivisionOrVillage,
+      barangayName,
+      cityOrMunicipality,
+      provinceName,
+      zipcode,
+      telephone,
+      mobileNum,
+      emailAddress,
+      spouseFirstName,
+      spouseMiddleName,
+      spouseLastName,
+      spouseNameExtension,
+      spouseOccupation,
+      spouseEmployerBusinessName,
+      spouseBusinessAddress,
+      spouseTelephone,
+      fatherFirstName,
+      fatherMiddleName,
+      fatherLastName,
+      fatherNameExtension,
+      motherMaidenFirstName,
+      motherMaidenMiddleName,
+      motherMaidenLastName,
+      elementaryNameOfSchool,
+      elementaryDegree,
+      elementaryPeriodFrom,
+      elementaryPeriodTo,
+      elementaryHighestAttained,
+      elementaryYearGraduated,
+      elementaryScholarshipAcademicHonorsReceived,
+      secondaryNameOfSchool,
+      secondaryDegree,
+      secondaryPeriodFrom,
+      secondaryPeriodTo,
+      secondaryHighestAttained,
+      secondaryYearGraduated,
+      secondaryScholarshipAcademicHonorsReceived,
+    ],
+    (err, result) => {
+      if (err) return res.status(500).send(err);
+      res.status(201).send({ message: 'Item created', id: result.insertId });
+    }
+  );
+});
 
+app.put('/personal-information/:id', (req, res) => {
+  const {
+    firstName,
+    middleName,
+    lastName,
+    birthDate,
+    civilStatus,
+    heightM,
+    weightKg,
+    bloodType,
+    gsisNum,
+    pagibigNum,
+    philhealthNum,
+    sssNum,
+    tinNum,
+    agencyEmployeeNum,
+    houseBlockLotNum,
+    streetName,
+    subdivisionOrVillage,
+    barangayName,
+    cityOrMunicipality,
+    provinceName,
+    zipcode,
+    telephone,
+    mobileNum,
+    emailAddress,
+    spouseFirstName,
+    spouseMiddleName,
+    spouseLastName,
+    spouseNameExtension,
+    spouseOccupation,
+    spouseEmployerBusinessName,
+    spouseBusinessAddress,
+    spouseTelephone,
+    fatherFirstName,
+    fatherMiddleName,
+    fatherLastName,
+    fatherNameExtension,
+    motherMaidenFirstName,
+    motherMaidenMiddleName,
+    motherMaidenLastName,
+    elementaryNameOfSchool,
+    elementaryDegree,
+    elementaryPeriodFrom,
+    elementaryPeriodTo,
+    elementaryHighestAttained,
+    elementaryYearGraduated,
+    elementaryScholarshipAcademicHonorsReceived,
+    secondaryNameOfSchool,
+    secondaryDegree,
+    secondaryPeriodFrom,
+    secondaryPeriodTo,
+    secondaryHighestAttained,
+    secondaryYearGraduated,
+    secondaryScholarshipAcademicHonorsReceived,
+  } = req.body;
+  const { id } = req.params;
+  const query =
+    'UPDATE person_table SET firstName = ?, middleName = ?, lastName = ?, birthDate = ?, civilStatus = ?, heightM = ?, weightKg = ?, bloodType = ?, gsisNum = ?, pagibigNum = ?, philhealthNum = ?, sssNum = ?, tinNum = ?, agencyEmployeeNum = ?, houseBlockLotNum = ?, streetName = ?, subdivisionOrVillage = ?, barangayName = ?, cityOrMunicipality = ?, provinceName = ?, zipcode = ?, telephone = ?, mobileNum = ?, emailAddress = ?, spouseFirstName = ?, spouseMiddleName = ?, spouseLastName = ?, spouseNameExtension = ?, spouseOccupation = ?, spouseEmployerBusinessName = ?, spouseBusinessAddress = ?, spouseTelephone = ?, fatherFirstName = ?, fatherMiddleName = ?, fatherLastName = ?, fatherNameExtension = ?, motherMaidenFirstName = ?, motherMaidenMiddleName = ?, motherMaidenLastName = ?, elementaryNameOfSchool = ?, elementaryDegree = ?, elementaryPeriodFrom = ?, elementaryPeriodTo = ?, elementaryHighestAttained = ?, elementaryYearGraduated = ?, elementaryScholarshipAcademicHonorsReceived = ?, secondaryNameOfSchool = ?, secondaryDegree = ?, secondaryPeriodFrom = ?, secondaryPeriodTo = ?, secondaryHighestAttained = ?, secondaryYearGraduated = ?, secondaryScholarshipAcademicHonorsReceived = ? WHERE id = ?';
+  db.query(
+    query,
+    [
+      firstName,
+      middleName,
+      lastName,
+      birthDate,
+      civilStatus,
+      heightM,
+      weightKg,
+      bloodType,
+      gsisNum,
+      pagibigNum,
+      philhealthNum,
+      sssNum,
+      tinNum,
+      agencyEmployeeNum,
+      houseBlockLotNum,
+      streetName,
+      subdivisionOrVillage,
+      barangayName,
+      cityOrMunicipality,
+      provinceName,
+      zipcode,
+      telephone,
+      mobileNum,
+      emailAddress,
+      spouseFirstName,
+      spouseMiddleName,
+      spouseLastName,
+      spouseNameExtension,
+      spouseOccupation,
+      spouseEmployerBusinessName,
+      spouseBusinessAddress,
+      spouseTelephone,
+      fatherFirstName,
+      fatherMiddleName,
+      fatherLastName,
+      fatherNameExtension,
+      motherMaidenFirstName,
+      motherMaidenMiddleName,
+      motherMaidenLastName,
+      elementaryNameOfSchool,
+      elementaryDegree,
+      elementaryPeriodFrom,
+      elementaryPeriodTo,
+      elementaryHighestAttained,
+      elementaryYearGraduated,
+      elementaryScholarshipAcademicHonorsReceived,
+      secondaryNameOfSchool,
+      secondaryDegree,
+      secondaryPeriodFrom,
+      secondaryPeriodTo,
+      secondaryHighestAttained,
+      secondaryYearGraduated,
+      secondaryScholarshipAcademicHonorsReceived,
+      id,
+    ],
+    (err, result) => {
+      if (err) return res.status(500).send(err);
+      res.status(200).send({ message: 'Item updated' });
+    }
+  );
+});
 
-// app.put("/person-table/:id", (req, res) => {
-//   const {
-//     firstName, middleName, lastName, birthDate, civilStatus, heightM, weightKg, bloodType, gsisNum, pagibigNum, philhealthNum, sssNum, tinNum, agencyEmployeeNum, houseBlockLotNum, streetName, subdivisionOrVillage, barangayName, cityOrMunicipality, provinceName, zipcode, telephone, mobileNum, emailAddress, spouseFirstName, spouseMiddleName, spouseLastName, spouseNameExtension, spouseOccupation, spouseEmployerBusinessName, spouseBusinessAddress, spouseTelephone, fatherFirstName, fatherMiddleName, fatherLastName, fatherNameExtension, motherMaidenFirstName, motherMaidenMiddleName, motherMaidenLastName, elementaryNameOfSchool, elementaryDegree, elementaryPeriodFrom, elementaryPeriodTo, elementaryHighestAttained, elementaryYearGraduated, elementaryScholarshipAcademicHonorsReceived, secondaryNameOfSchool, secondaryDegree, secondaryPeriodFrom, secondaryPeriodTo, secondaryHighestAttained, secondaryYearGraduated, secondaryScholarshipAcademicHonorsReceived 
-//   } = req.body;
-//   const { id } = req.params;
-//   const query =
-//     "UPDATE person_table SET firstName = ?, middleName = ?, lastName = ?, birthDate = ?, civilStatus = ?, heightM = ?, weightKg = ?, bloodType = ?, gsisNum = ?, pagibigNum = ?, philhealthNum = ?, sssNum = ?, tinNum = ?, agencyEmployeeNum = ?, houseBlockLotNum = ?, streetName = ?, subdivisionOrVillage = ?, barangayName = ?, cityOrMunicipality = ?, provinceName = ?, zipcode = ?, telephone = ?, mobileNum = ?, emailAddress = ?, spouseFirstName = ?, spouseMiddleName = ?, spouseLastName = ?, spouseNameExtension = ?, spouseOccupation = ?, spouseEmployerBusinessName = ?, spouseBusinessAddress = ?, spouseTelephone = ?, fatherFirstName = ?, fatherMiddleName = ?, fatherLastName = ?, fatherNameExtension = ?, motherMaidenFirstName = ?, motherMaidenMiddleName = ?, motherMaidenLastName = ?, elementaryNameOfSchool = ?, elementaryDegree = ?, elementaryPeriodFrom = ?, elementaryPeriodTo = ?, elementaryHighestAttained = ?, elementaryYearGraduated = ?, elementaryScholarshipAcademicHonorsReceived = ?, secondaryNameOfSchool = ?, secondaryDegree = ?, secondaryPeriodFrom = ?, secondaryPeriodTo = ?, secondaryHighestAttained = ?, secondaryYearGraduated = ?, secondaryScholarshipAcademicHonorsReceived = ? WHERE id = ?';
-//   db.query(
-//     query,
-//     [
-//       firstName, middleName, lastName, birthDate, civilStatus, heightM, weightKg, bloodType, gsisNum, pagibigNum, philhealthNum, sssNum, tinNum, agencyEmployeeNum, houseBlockLotNum, streetName, subdivisionOrVillage, barangayName, cityOrMunicipality, provinceName, zipcode, telephone, mobileNum, emailAddress, spouseFirstName, spouseMiddleName, spouseLastName, spouseNameExtension, spouseOccupation, spouseEmployerBusinessName, spouseBusinessAddress, spouseTelephone, fatherFirstName, fatherMiddleName, fatherLastName, fatherNameExtension, motherMaidenFirstName, motherMaidenMiddleName, motherMaidenLastName, elementaryNameOfSchool, elementaryDegree, elementaryPeriodFrom, elementaryPeriodTo, elementaryHighestAttained, elementaryYearGraduated, elementaryScholarshipAcademicHonorsReceived, secondaryNameOfSchool, secondaryDegree, secondaryPeriodFrom, secondaryPeriodTo, secondaryHighestAttained, secondaryYearGraduated, secondaryScholarshipAcademicHonorsReceived, id,
-//     ],
-//     (err, result) => {
-//       if (err) return res.status(500).send(err);
-//       res.status(200).send({ message: "Item updated" });
-//     }
-//   );
-// });
+app.delete('/personal-information/:id', (req, res) => {
+  const { id } = req.params;
+  const query = 'DELETE FROM person_table WHERE id = ?';
+  db.query(query, [id], (err, result) => {
+    if (err) return res.status(500).send(err);
+    res.status(200).send({ message: 'Item deleted' });
+  });
+});
+
 // COLLEGE TABLE START HERE!
 // College Table
-app.get("/college", (req, res) => {
-  const query = "SELECT * FROM college";
+app.get('/college', (req, res) => {
+  const query = 'SELECT * FROM college';
   db.query(query, (err, result) => {
     if (err) return res.status(500).send(err);
     res.status(200).send(result);
@@ -395,7 +616,7 @@ app.get("/college", (req, res) => {
 });
 
 // Add item for college
-app.post("/college", (req, res) => {
+app.post('/college', (req, res) => {
   const {
     collegeNameOfSchool,
     collegeDegree,
@@ -406,7 +627,7 @@ app.post("/college", (req, res) => {
     collegeScholarshipAcademicHonorsReceived,
   } = req.body;
   const query =
-    "INSERT INTO college (collegeNameOfSchool, collegeDegree, collegePeriodFrom, collegePeriodTo, collegeHighestAttained, collegeYearGraduated, collegeScholarshipAcademicHonorsReceived) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    'INSERT INTO college (collegeNameOfSchool, collegeDegree, collegePeriodFrom, collegePeriodTo, collegeHighestAttained, collegeYearGraduated, collegeScholarshipAcademicHonorsReceived) VALUES (?, ?, ?, ?, ?, ?, ?)';
   db.query(
     query,
     [
@@ -420,13 +641,13 @@ app.post("/college", (req, res) => {
     ],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(201).send({ message: "Item created", id: result.insertId });
+      res.status(201).send({ message: 'Item created', id: result.insertId });
     }
   );
 });
 
 // Update item for college
-app.put("/college/:id", (req, res) => {
+app.put('/college/:id', (req, res) => {
   const {
     collegeNameOfSchool,
     collegeDegree,
@@ -438,7 +659,7 @@ app.put("/college/:id", (req, res) => {
   } = req.body;
   const { id } = req.params;
   const query =
-    "UPDATE college SET collegeNameOfSchool = ?, collegeDegree = ?, collegePeriodFrom = ?, collegePeriodTo = ?, collegeHighestAttained = ?, collegeYearGraduated = ?, collegeScholarshipAcademicHonorsReceived = ? WHERE id = ?";
+    'UPDATE college SET collegeNameOfSchool = ?, collegeDegree = ?, collegePeriodFrom = ?, collegePeriodTo = ?, collegeHighestAttained = ?, collegeYearGraduated = ?, collegeScholarshipAcademicHonorsReceived = ? WHERE id = ?';
   db.query(
     query,
     [
@@ -453,26 +674,26 @@ app.put("/college/:id", (req, res) => {
     ],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(200).send({ message: "Item updated" });
+      res.status(200).send({ message: 'Item updated' });
     }
   );
 });
 
 // Delete item for college
-app.delete("/college/:id", (req, res) => {
+app.delete('/college/:id', (req, res) => {
   const { id } = req.params;
-  const query = "DELETE FROM college WHERE id = ?";
+  const query = 'DELETE FROM college WHERE id = ?';
   db.query(query, [id], (err, result) => {
     if (err) return res.status(500).send(err);
-    res.status(200).send({ message: "Item deleted" });
+    res.status(200).send({ message: 'Item deleted' });
   });
 });
 // COLLEGE TABLE END HERE.
 
 // OTHER INFORMATION START HERE!
 // GET ALL ITEM FROM OTHER INFORMATION
-app.get("/other-information", (req, res) => {
-  const query = "SELECT * FROM other_information";
+app.get('/other-information', (req, res) => {
+  const query = 'SELECT * FROM other_information';
   db.query(query, (err, result) => {
     if (err) return res.status(500).send(err);
     res.status(200).send(result);
@@ -480,53 +701,53 @@ app.get("/other-information", (req, res) => {
 });
 
 // Add item for other-information
-app.post("/other-information", (req, res) => {
+app.post('/other-information', (req, res) => {
   const { specialSkills, nonAcademicDistinctions, membershipInAssociation } =
     req.body;
   const query =
-    "INSERT INTO other_information (specialSkills, nonAcademicDistinctions, membershipInAssociation) VALUES (?, ?, ?)";
+    'INSERT INTO other_information (specialSkills, nonAcademicDistinctions, membershipInAssociation) VALUES (?, ?, ?)';
   db.query(
     query,
     [specialSkills, nonAcademicDistinctions, membershipInAssociation],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(201).send({ message: "Item created", id: result.insertId });
+      res.status(201).send({ message: 'Item created', id: result.insertId });
     }
   );
 });
 
 // Update item for other information
-app.put("/other-information/:id", (req, res) => {
+app.put('/other-information/:id', (req, res) => {
   const { specialSkills, nonAcademicDistinctions, membershipInAssociation } =
     req.body;
   const { id } = req.params;
   const query =
-    "UPDATE other_information SET specialSkills = ?, nonAcademicDistinctions = ?, membershipInAssociation = ? WHERE id = ?";
+    'UPDATE other_information SET specialSkills = ?, nonAcademicDistinctions = ?, membershipInAssociation = ? WHERE id = ?';
   db.query(
     query,
     [specialSkills, nonAcademicDistinctions, membershipInAssociation, id],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(200).send({ message: "Item updated" });
+      res.status(200).send({ message: 'Item updated' });
     }
   );
 });
 
 // Delete item for other information
-app.delete("/other-information/:id", (req, res) => {
+app.delete('/other-information/:id', (req, res) => {
   const { id } = req.params;
-  const query = "DELETE FROM other_information WHERE id = ?";
+  const query = 'DELETE FROM other_information WHERE id = ?';
   db.query(query, [id], (err, result) => {
     if (err) return res.status(500).send(err);
-    res.status(200).send({ message: "Item deleted" });
+    res.status(200).send({ message: 'Item deleted' });
   });
 });
 // OTHER INFORMATION TABLE END HERE.
 
 // VOCATAIONAL TABLE START HERE!
 // Get all item from vocational table
-app.get("/vocational", (req, res) => {
-  const query = "SELECT * FROM vocational";
+app.get('/vocational', (req, res) => {
+  const query = 'SELECT * FROM vocational';
   db.query(query, (err, result) => {
     if (err) return res.status(500).send(err);
     res.status(200).send(result);
@@ -534,7 +755,7 @@ app.get("/vocational", (req, res) => {
 });
 
 // Add item vocational
-app.post("/vocational", (req, res) => {
+app.post('/vocational', (req, res) => {
   const {
     vocationalNameOfSchool,
     vocationalDegree,
@@ -544,7 +765,7 @@ app.post("/vocational", (req, res) => {
     vocationalYearGraduated,
   } = req.body;
   const query =
-    "INSERT INTO vocational (vocationalNameOfSchool, vocationalDegree, vocationalPeriodFrom, vocationalPeriodTo, vocationalHighestAttained, vocationalYearGraduated) VALUES (?, ?, ?, ?, ?, ?)";
+    'INSERT INTO vocational (vocationalNameOfSchool, vocationalDegree, vocationalPeriodFrom, vocationalPeriodTo, vocationalHighestAttained, vocationalYearGraduated) VALUES (?, ?, ?, ?, ?, ?)';
   db.query(
     query,
     [
@@ -557,13 +778,13 @@ app.post("/vocational", (req, res) => {
     ],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(201).send({ message: "Item created", id: result.insertId });
+      res.status(201).send({ message: 'Item created', id: result.insertId });
     }
   );
 });
 
 // Update item for vocational
-app.put("/vocational/:id", (req, res) => {
+app.put('/vocational/:id', (req, res) => {
   const {
     vocationalNameOfSchool,
     vocationalDegree,
@@ -574,7 +795,7 @@ app.put("/vocational/:id", (req, res) => {
   } = req.body;
   const { id } = req.params;
   const query =
-    "UPDATE vocational SET vocationalNameOfSchool = ?, vocationalDegree = ?, vocationalPeriodFrom = ?, vocationalPeriodTo = ?, vocationalHighestAttained = ?, vocationalYearGraduated = ?  WHERE id = ?";
+    'UPDATE vocational SET vocationalNameOfSchool = ?, vocationalDegree = ?, vocationalPeriodFrom = ?, vocationalPeriodTo = ?, vocationalHighestAttained = ?, vocationalYearGraduated = ?  WHERE id = ?';
   db.query(
     query,
     [
@@ -588,26 +809,26 @@ app.put("/vocational/:id", (req, res) => {
     ],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(200).send({ message: "Item updated" });
+      res.status(200).send({ message: 'Item updated' });
     }
   );
 });
 
 // Delete item for vocational
-app.delete("/vocational/:id", (req, res) => {
+app.delete('/vocational/:id', (req, res) => {
   const { id } = req.params;
-  const query = "DELETE FROM vocational WHERE id = ?";
+  const query = 'DELETE FROM vocational WHERE id = ?';
   db.query(query, [id], (err, result) => {
     if (err) return res.status(500).send(err);
-    res.status(200).send({ message: "Item deleted" });
+    res.status(200).send({ message: 'Item deleted' });
   });
 });
 // VOCATINAL TABLE END HERE.
 
 // WORK EXPERIENCE TABLE START HERE!
 // Get all item for work experience
-app.get("/work-experience", (req, res) => {
-  const query = "SELECT * FROM work_experience";
+app.get('/work-experience', (req, res) => {
+  const query = 'SELECT * FROM work_experience';
   db.query(query, (err, result) => {
     if (err) return res.status(500).send(err);
     res.status(200).send(result);
@@ -615,7 +836,7 @@ app.get("/work-experience", (req, res) => {
 });
 
 // Add item for work experience
-app.post("/work-experience", (req, res) => {
+app.post('/work-experience', (req, res) => {
   const {
     workDateFrom,
     workDateTo,
@@ -627,7 +848,7 @@ app.post("/work-experience", (req, res) => {
     isGovtService,
   } = req.body;
   const query =
-    "INSERT INTO work_experience (workDateFrom, workDateTo, workPositionTitle, workCompany, workMonthlySalary, salaryJobOrPayGrade, statusOfAppointment, isGovtService) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    'INSERT INTO work_experience (workDateFrom, workDateTo, workPositionTitle, workCompany, workMonthlySalary, salaryJobOrPayGrade, statusOfAppointment, isGovtService) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
   db.query(
     query,
     [
@@ -642,13 +863,13 @@ app.post("/work-experience", (req, res) => {
     ],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(201).send({ message: "Item created", id: result.insertId });
+      res.status(201).send({ message: 'Item created', id: result.insertId });
     }
   );
 });
 
 // Update item for work experience
-app.put("/work-experience/:id", (req, res) => {
+app.put('/work-experience/:id', (req, res) => {
   const {
     workDateFrom,
     workDateTo,
@@ -661,7 +882,7 @@ app.put("/work-experience/:id", (req, res) => {
   } = req.body;
   const { id } = req.params;
   const query =
-    "UPDATE work_experience SET workDateFrom = ?, workDateTo = ?, workPositionTitle = ?, workCompany = ?, workMonthlySalary = ?, salaryJobOrPayGrade = ?, statusOfAppointment = ?, isGovtService = ?  WHERE id = ?";
+    'UPDATE work_experience SET workDateFrom = ?, workDateTo = ?, workPositionTitle = ?, workCompany = ?, workMonthlySalary = ?, salaryJobOrPayGrade = ?, statusOfAppointment = ?, isGovtService = ?  WHERE id = ?';
   db.query(
     query,
     [
@@ -677,26 +898,26 @@ app.put("/work-experience/:id", (req, res) => {
     ],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(200).send({ message: "Item updated" });
+      res.status(200).send({ message: 'Item updated' });
     }
   );
 });
 
 // Delete item for work experience
-app.delete("/work-experience/:id", (req, res) => {
+app.delete('/work-experience/:id', (req, res) => {
   const { id } = req.params;
-  const query = "DELETE FROM work_experience WHERE id = ?";
+  const query = 'DELETE FROM work_experience WHERE id = ?';
   db.query(query, [id], (err, result) => {
     if (err) return res.status(500).send(err);
-    res.status(200).send({ message: "Item deleted" });
+    res.status(200).send({ message: 'Item deleted' });
   });
 });
 // WORK EXPERIENCE END HERE.
 
 // CITIZENSHIP TABLE START HERE!
 // Get all item from citizenship
-app.get("/citizenship", (req, res) => {
-  const query = "SELECT * FROM citizenship";
+app.get('/citizenship', (req, res) => {
+  const query = 'SELECT * FROM citizenship';
   db.query(query, (err, result) => {
     if (err) return res.status(500).send(err);
     res.status(200).send(result);
@@ -704,51 +925,51 @@ app.get("/citizenship", (req, res) => {
 });
 
 // Add item for citizenship
-app.post("/citizenship", (req, res) => {
+app.post('/citizenship', (req, res) => {
   const { citizenshipDescription, citizenshipType, countryName } = req.body;
   const query =
-    "INSERT INTO citizenship (citizenshipDescription, citizenshipType, countryName) VALUES (?, ?, ?)";
+    'INSERT INTO citizenship (citizenshipDescription, citizenshipType, countryName) VALUES (?, ?, ?)';
   db.query(
     query,
     [citizenshipDescription, citizenshipType, countryName],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(201).send({ message: "Item created", id: result.insertId });
+      res.status(201).send({ message: 'Item created', id: result.insertId });
     }
   );
 });
 
 // Update item for citizenship
-app.put("/citizenship/:id", (req, res) => {
+app.put('/citizenship/:id', (req, res) => {
   const { citizenshipDescription, citizenshipType, countryName } = req.body;
   const { id } = req.params;
   const query =
-    "UPDATE citizenship SET citizenshipDescription = ?, citizenshipType = ?, countryName = ? WHERE id = ?";
+    'UPDATE citizenship SET citizenshipDescription = ?, citizenshipType = ?, countryName = ? WHERE id = ?';
   db.query(
     query,
     [citizenshipDescription, citizenshipType, countryName, id],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(200).send({ message: "Item updated" });
+      res.status(200).send({ message: 'Item updated' });
     }
   );
 });
 
 // Delete item for citizenship
-app.delete("/citizenship/:id", (req, res) => {
+app.delete('/citizenship/:id', (req, res) => {
   const { id } = req.params;
-  const query = "DELETE FROM citizenship WHERE id = ?";
+  const query = 'DELETE FROM citizenship WHERE id = ?';
   db.query(query, [id], (err, result) => {
     if (err) return res.status(500).send(err);
-    res.status(200).send({ message: "Item deleted" });
+    res.status(200).send({ message: 'Item deleted' });
   });
 });
 // CITIZENSHIP TABLE END HERE.
 
 // CHILDREN TABLE START HERE!
 // Get all item for children
-app.get("/children", (req, res) => {
-  const query = "SELECT * FROM children";
+app.get('/children', (req, res) => {
+  const query = 'SELECT * FROM children';
   db.query(query, (err, result) => {
     if (err) return res.status(500).send(err);
     res.status(200).send(result);
@@ -756,7 +977,7 @@ app.get("/children", (req, res) => {
 });
 
 // Add item for children
-app.post("/children", (req, res) => {
+app.post('/children', (req, res) => {
   const {
     childrenFirstName,
     childrenLastName,
@@ -764,19 +985,19 @@ app.post("/children", (req, res) => {
     dateOfBirth,
   } = req.body;
   const query =
-    "INSERT INTO children (childrenFirstName, childrenLastName, childrenNameExtension, dateOfBirth) VALUES (?, ?, ?, ?)";
+    'INSERT INTO children (childrenFirstName, childrenLastName, childrenNameExtension, dateOfBirth) VALUES (?, ?, ?, ?)';
   db.query(
     query,
     [childrenFirstName, childrenLastName, childrenNameExtension, dateOfBirth],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(201).send({ message: "Item created", id: result.insertId });
+      res.status(201).send({ message: 'Item created', id: result.insertId });
     }
   );
 });
 
 // Update item for children
-app.put("/children/:id", (req, res) => {
+app.put('/children/:id', (req, res) => {
   const {
     childrenFirstName,
     childrenLastName,
@@ -785,7 +1006,7 @@ app.put("/children/:id", (req, res) => {
   } = req.body;
   const { id } = req.params;
   const query =
-    "UPDATE children SET childrenFirstName = ?, childrenLastName = ?, childrenNameExtension = ?, dateOfBirth = ?  WHERE id = ?";
+    'UPDATE children SET childrenFirstName = ?, childrenLastName = ?, childrenNameExtension = ?, dateOfBirth = ?  WHERE id = ?';
   db.query(
     query,
     [
@@ -797,31 +1018,31 @@ app.put("/children/:id", (req, res) => {
     ],
     (err, result) => {
       if (err) return res.status(500).send(err);
-      res.status(200).send({ message: "Item updated" });
+      res.status(200).send({ message: 'Item updated' });
     }
   );
 });
 
 // Delete item for children
-app.delete("/children/:id", (req, res) => {
+app.delete('/children/:id', (req, res) => {
   const { id } = req.params;
-  const query = "DELETE FROM children WHERE id = ?";
+  const query = 'DELETE FROM children WHERE id = ?';
   db.query(query, [id], (err, result) => {
     if (err) return res.status(500).send(err);
-    res.status(200).send({ message: "Item deleted" });
+    res.status(200).send({ message: 'Item deleted' });
   });
 });
 
 // Update company settings
-app.post("/api/settings", upload.single("logo"), (req, res) => {
-  const companyName = req.body.company_name || "";
-  const headerColor = req.body.header_color || "#ffffff";
-  const footerText = req.body.footer_text || "";
-  const footerColor = req.body.footer_color || "#ffffff";
+app.post('/api/settings', upload.single('logo'), (req, res) => {
+  const companyName = req.body.company_name || '';
+  const headerColor = req.body.header_color || '#ffffff';
+  const footerText = req.body.footer_text || '';
+  const footerColor = req.body.footer_color || '#ffffff';
   const logoUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
   // Check if company settings already exist
-  db.query("SELECT * FROM company_settings WHERE id = 1", (err, result) => {
+  db.query('SELECT * FROM company_settings WHERE id = 1', (err, result) => {
     if (err) throw err;
 
     if (result.length > 0) {
@@ -831,9 +1052,9 @@ app.post("/api/settings", upload.single("logo"), (req, res) => {
 
       // Update existing settings
       const query =
-        "UPDATE company_settings SET company_name = ?, header_color = ?, footer_text = ?, footer_color = ?" +
-        (logoUrl ? ", logo_url = ?" : "") +
-        " WHERE id = 1";
+        'UPDATE company_settings SET company_name = ?, header_color = ?, footer_text = ?, footer_color = ?' +
+        (logoUrl ? ', logo_url = ?' : '') +
+        ' WHERE id = 1';
       const params = [companyName, headerColor, footerText, footerColor];
       if (logoUrl) params.push(logoUrl);
 
@@ -850,7 +1071,7 @@ app.post("/api/settings", upload.single("logo"), (req, res) => {
     } else {
       // Insert new settings
       const query =
-        "INSERT INTO company_settings (company_name, header_color, footer_text, footer_color, logo_url) VALUES (?, ?, ?, ?, ?)";
+        'INSERT INTO company_settings (company_name, header_color, footer_text, footer_color, logo_url) VALUES (?, ?, ?, ?, ?)';
       db.query(
         query,
         [companyName, headerColor, footerText, footerColor, logoUrl],
@@ -868,7 +1089,7 @@ app.post("/api/settings", upload.single("logo"), (req, res) => {
 //=========================
 
 // Multer setup for file uploads
-const uploads = multer({ dest: "uploads/" });
+const uploads = multer({ dest: 'uploads/' });
 
 // Function to convert Excel date serial to JS Date
 const excelDateToJSDate = (serial) => {
@@ -881,9 +1102,9 @@ const excelDateToJSDate = (serial) => {
 };
 
 // Route to handle XLS file upload
-app.post("/upload/voluntary-work", uploads.single("file"), (req, res) => {
+app.post('/upload/voluntary-work', uploads.single('file'), (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
+    return res.status(400).json({ error: 'No file uploaded' });
   }
 
   try {
@@ -893,7 +1114,7 @@ app.post("/upload/voluntary-work", uploads.single("file"), (req, res) => {
     const sheet = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name]);
 
     // Log the uploaded data for troubleshooting
-    console.log("Uploaded sheet data:", sheet);
+    console.log('Uploaded sheet data:', sheet);
 
     // Insert data into 'voluntary-work' table
     sheet.forEach((row) => {
@@ -910,11 +1131,11 @@ app.post("/upload/voluntary-work", uploads.single("file"), (req, res) => {
         [nameAndAddress, dateFrom, dateTo, numberOfHours, numberOfWorks],
         (err, result) => {
           if (err) {
-            console.error("Error inserting data:", err);
+            console.error('Error inserting data:', err);
             return;
           }
           console.log(
-            "Data inserted successfully into Voluntary Work table:",
+            'Data inserted successfully into Voluntary Work table:',
             result
           );
         }
@@ -924,29 +1145,196 @@ app.post("/upload/voluntary-work", uploads.single("file"), (req, res) => {
     // Send response after insertion
     res.json({
       message:
-        "File uploaded and data inserted successfully into Voluntary Work table",
+        'File uploaded and data inserted successfully into Voluntary Work table',
     });
   } catch (error) {
-    console.error("Error processing XLS file:", error);
-    res.status(500).json({ error: "Error processing XLS file" });
+    console.error('Error processing XLS file:', error);
+    res.status(500).json({ error: 'Error processing XLS file' });
   } finally {
     // Delete the uploaded file to save space on the server
     fs.unlink(req.file.path, (err) => {
       if (err) {
-        console.error("Error deleting uploaded file:", err);
+        console.error('Error deleting uploaded file:', err);
       } else {
-        console.log("Uploaded file deleted");
+        console.log('Uploaded file deleted');
+      }
+    });
+  }
+});
+
+// Personal Information XLS
+app.post('/upload/personal-information', uploads.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  try {
+    // Read the uploaded XLS file
+    const workbook = xlsx.readFile(req.file.path);
+    const sheet_name = workbook.SheetNames[0];
+    const sheet = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name]);
+
+    // Log the uploaded data for troubleshooting
+    console.log('Uploaded sheet data:', sheet);
+
+    // Insert data into 'voluntary-work' table
+    sheet.forEach((row) => {
+      const {
+        firstName,
+        middleName,
+        lastName,
+        birthDate,
+        civilStatus,
+        heightM,
+        weightKg,
+        bloodType,
+        gsisNum,
+        pagibigNum,
+        philhealthNum,
+        sssNum,
+        tinNum,
+        agencyEmployeeNum,
+        houseBlockLotNum,
+        streetName,
+        subdivisionOrVillage,
+        barangayName,
+        cityOrMunicipality,
+        provinceName,
+        zipcode,
+        telephone,
+        mobileNum,
+        emailAddress,
+        spouseFirstName,
+        spouseMiddleName,
+        spouseLastName,
+        spouseNameExtension,
+        spouseOccupation,
+        spouseEmployerBusinessName,
+        spouseBusinessAddress,
+        spouseTelephone,
+        fatherFirstName,
+        fatherMiddleName,
+        fatherLastName,
+        fatherNameExtension,
+        motherMaidenFirstName,
+        motherMaidenMiddleName,
+        motherMaidenLastName,
+        elementaryNameOfSchool,
+        elementaryDegree,
+        elementaryPeriodFrom,
+        elementaryPeriodTo,
+        elementaryHighestAttained,
+        elementaryYearGraduated,
+        elementaryScholarshipAcademicHonorsReceived,
+        secondaryNameOfSchool,
+        secondaryDegree,
+        secondaryPeriodFrom,
+        secondaryPeriodTo,
+        secondaryHighestAttained,
+        secondaryYearGraduated,
+        secondaryScholarshipAcademicHonorsReceived,
+      } = row;
+
+      // Prepare SQL statement for insertion into 'voluntary-work' table
+      const sql = `
+        INSERT INTO person_table (firstName, middleName, lastName, birthDate, civilStatus, heightM, weightKg, bloodType, gsisNum, pagibigNum, philhealthNum, sssNum, tinNum, agencyEmployeeNum, houseBlockLotNum, streetName, subdivisionOrVillage, barangayName, cityOrMunicipality, provinceName, zipcode, telephone, mobileNum, emailAddress, spouseFirstName, spouseMiddleName, spouseLastName, spouseNameExtension, spouseOccupation, spouseEmployerBusinessName, spouseBusinessAddress, spouseTelephone, fatherFirstName, fatherMiddleName, fatherLastName, fatherNameExtension, motherMaidenFirstName, motherMaidenMiddleName, motherMaidenLastName, elementaryNameOfSchool, elementaryDegree, elementaryPeriodFrom, elementaryPeriodTo, elementaryHighestAttained, elementaryYearGraduated, elementaryScholarshipAcademicHonorsReceived, secondaryNameOfSchool, secondaryDegree, secondaryPeriodFrom, secondaryPeriodTo, secondaryHighestAttained, secondaryYearGraduated, secondaryScholarshipAcademicHonorsReceived ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+      db.query(
+        sql,
+        [
+          firstName,
+          middleName,
+          lastName,
+          birthDate,
+          civilStatus,
+          heightM,
+          weightKg,
+          bloodType,
+          gsisNum,
+          pagibigNum,
+          philhealthNum,
+          sssNum,
+          tinNum,
+          agencyEmployeeNum,
+          houseBlockLotNum,
+          streetName,
+          subdivisionOrVillage,
+          barangayName,
+          cityOrMunicipality,
+          provinceName,
+          zipcode,
+          telephone,
+          mobileNum,
+          emailAddress,
+          spouseFirstName,
+          spouseMiddleName,
+          spouseLastName,
+          spouseNameExtension,
+          spouseOccupation,
+          spouseEmployerBusinessName,
+          spouseBusinessAddress,
+          spouseTelephone,
+          fatherFirstName,
+          fatherMiddleName,
+          fatherLastName,
+          fatherNameExtension,
+          motherMaidenFirstName,
+          motherMaidenMiddleName,
+          motherMaidenLastName,
+          elementaryNameOfSchool,
+          elementaryDegree,
+          elementaryPeriodFrom,
+          elementaryPeriodTo,
+          elementaryHighestAttained,
+          elementaryYearGraduated,
+          elementaryScholarshipAcademicHonorsReceived,
+          secondaryNameOfSchool,
+          secondaryDegree,
+          secondaryPeriodFrom,
+          secondaryPeriodTo,
+          secondaryHighestAttained,
+          secondaryYearGraduated,
+          secondaryScholarshipAcademicHonorsReceived,
+        ],
+        (err, result) => {
+          if (err) {
+            console.error('Error inserting data:', err);
+            return;
+          }
+          console.log(
+            'Data inserted successfully into Voluntary Work table:',
+            result
+          );
+        }
+      );
+    });
+
+    // Send response after insertion
+    res.json({
+      message:
+        'File uploaded and data inserted successfully into Voluntary Work table',
+    });
+  } catch (error) {
+    console.error('Error processing XLS file:', error);
+    res.status(500).json({ error: 'Error processing XLS file' });
+  } finally {
+    // Delete the uploaded file to save space on the server
+    fs.unlink(req.file.path, (err) => {
+      if (err) {
+        console.error('Error deleting uploaded file:', err);
+      } else {
+        console.log('Uploaded file deleted');
       }
     });
   }
 });
 
 app.post(
-  "/upload/learning-and-development",
-  uploads.single("file"),
+  '/upload/learning-and-development',
+  uploads.single('file'),
   (req, res) => {
     if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
+      return res.status(400).json({ error: 'No file uploaded' });
     }
 
     try {
@@ -956,7 +1344,7 @@ app.post(
       const sheet = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name]);
 
       // Log the uploaded data for troubleshooting
-      console.log("Uploaded sheet data:", sheet);
+      console.log('Uploaded sheet data:', sheet);
 
       // Insert data into 'voluntary-work' table
       sheet.forEach((row) => {
@@ -985,11 +1373,11 @@ app.post(
           ],
           (err, result) => {
             if (err) {
-              console.error("Error inserting data:", err);
+              console.error('Error inserting data:', err);
               return;
             }
             console.log(
-              "Data inserted successfully into Voluntary Work table:",
+              'Data inserted successfully into Voluntary Work table:',
               result
             );
           }
@@ -999,27 +1387,27 @@ app.post(
       // Send response after insertion
       res.json({
         message:
-          "File uploaded and data inserted successfully into Voluntary Work table",
+          'File uploaded and data inserted successfully into Voluntary Work table',
       });
     } catch (error) {
-      console.error("Error processing XLS file:", error);
-      res.status(500).json({ error: "Error processing XLS file" });
+      console.error('Error processing XLS file:', error);
+      res.status(500).json({ error: 'Error processing XLS file' });
     } finally {
       // Delete the uploaded file to save space on the server
       fs.unlink(req.file.path, (err) => {
         if (err) {
-          console.error("Error deleting uploaded file:", err);
+          console.error('Error deleting uploaded file:', err);
         } else {
-          console.log("Uploaded file deleted");
+          console.log('Uploaded file deleted');
         }
       });
     }
   }
 );
 
-app.post("/upload/eligibility", uploads.single("file"), (req, res) => {
+app.post('/upload/eligibility', uploads.single('file'), (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
+    return res.status(400).json({ error: 'No file uploaded' });
   }
 
   try {
@@ -1029,7 +1417,7 @@ app.post("/upload/eligibility", uploads.single("file"), (req, res) => {
     const sheet = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name]);
 
     // Log the uploaded data for troubleshooting
-    console.log("Uploaded sheet data:", sheet);
+    console.log('Uploaded sheet data:', sheet);
 
     // Insert data into 'voluntary-work' table
     sheet.forEach((row) => {
@@ -1056,11 +1444,11 @@ app.post("/upload/eligibility", uploads.single("file"), (req, res) => {
         ],
         (err, result) => {
           if (err) {
-            console.error("Error inserting data:", err);
+            console.error('Error inserting data:', err);
             return;
           }
           console.log(
-            "Data inserted successfully into Voluntary Work table:",
+            'Data inserted successfully into Voluntary Work table:',
             result
           );
         }
@@ -1070,26 +1458,26 @@ app.post("/upload/eligibility", uploads.single("file"), (req, res) => {
     // Send response after insertion
     res.json({
       message:
-        "File uploaded and data inserted successfully into Voluntary Work table",
+        'File uploaded and data inserted successfully into Voluntary Work table',
     });
   } catch (error) {
-    console.error("Error processing XLS file:", error);
-    res.status(500).json({ error: "Error processing XLS file" });
+    console.error('Error processing XLS file:', error);
+    res.status(500).json({ error: 'Error processing XLS file' });
   } finally {
     // Delete the uploaded file to save space on the server
     fs.unlink(req.file.path, (err) => {
       if (err) {
-        console.error("Error deleting uploaded file:", err);
+        console.error('Error deleting uploaded file:', err);
       } else {
-        console.log("Uploaded file deleted");
+        console.log('Uploaded file deleted');
       }
     });
   }
 });
 
-app.post("/upload/college", uploads.single("file"), (req, res) => {
+app.post('/upload/college', uploads.single('file'), (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
+    return res.status(400).json({ error: 'No file uploaded' });
   }
 
   try {
@@ -1099,7 +1487,7 @@ app.post("/upload/college", uploads.single("file"), (req, res) => {
     const sheet = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name]);
 
     // Log the uploaded data for troubleshooting
-    console.log("Uploaded sheet data:", sheet);
+    console.log('Uploaded sheet data:', sheet);
 
     // Insert data into 'voluntary-work' table
     sheet.forEach((row) => {
@@ -1130,11 +1518,11 @@ app.post("/upload/college", uploads.single("file"), (req, res) => {
         ],
         (err, result) => {
           if (err) {
-            console.error("Error inserting data:", err);
+            console.error('Error inserting data:', err);
             return;
           }
           console.log(
-            "Data inserted successfully into Voluntary Work table:",
+            'Data inserted successfully into Voluntary Work table:',
             result
           );
         }
@@ -1144,26 +1532,26 @@ app.post("/upload/college", uploads.single("file"), (req, res) => {
     // Send response after insertion
     res.json({
       message:
-        "File uploaded and data inserted successfully into Voluntary Work table",
+        'File uploaded and data inserted successfully into Voluntary Work table',
     });
   } catch (error) {
-    console.error("Error processing XLS file:", error);
-    res.status(500).json({ error: "Error processing XLS file" });
+    console.error('Error processing XLS file:', error);
+    res.status(500).json({ error: 'Error processing XLS file' });
   } finally {
     // Delete the uploaded file to save space on the server
     fs.unlink(req.file.path, (err) => {
       if (err) {
-        console.error("Error deleting uploaded file:", err);
+        console.error('Error deleting uploaded file:', err);
       } else {
-        console.log("Uploaded file deleted");
+        console.log('Uploaded file deleted');
       }
     });
   }
 });
 
-app.post("/upload/other-information", uploads.single("file"), (req, res) => {
+app.post('/upload/other-information', uploads.single('file'), (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
+    return res.status(400).json({ error: 'No file uploaded' });
   }
 
   try {
@@ -1173,7 +1561,7 @@ app.post("/upload/other-information", uploads.single("file"), (req, res) => {
     const sheet = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name]);
 
     // Log the uploaded data for troubleshooting
-    console.log("Uploaded sheet data:", sheet);
+    console.log('Uploaded sheet data:', sheet);
 
     // Insert data into 'voluntary-work' table
     sheet.forEach((row) => {
@@ -1192,11 +1580,11 @@ app.post("/upload/other-information", uploads.single("file"), (req, res) => {
         [specialSkills, nonAcademicDistinctions, membershipInAssociation],
         (err, result) => {
           if (err) {
-            console.error("Error inserting data:", err);
+            console.error('Error inserting data:', err);
             return;
           }
           console.log(
-            "Data inserted successfully into Voluntary Work table:",
+            'Data inserted successfully into Voluntary Work table:',
             result
           );
         }
@@ -1206,26 +1594,26 @@ app.post("/upload/other-information", uploads.single("file"), (req, res) => {
     // Send response after insertion
     res.json({
       message:
-        "File uploaded and data inserted successfully into Voluntary Work table",
+        'File uploaded and data inserted successfully into Voluntary Work table',
     });
   } catch (error) {
-    console.error("Error processing XLS file:", error);
-    res.status(500).json({ error: "Error processing XLS file" });
+    console.error('Error processing XLS file:', error);
+    res.status(500).json({ error: 'Error processing XLS file' });
   } finally {
     // Delete the uploaded file to save space on the server
     fs.unlink(req.file.path, (err) => {
       if (err) {
-        console.error("Error deleting uploaded file:", err);
+        console.error('Error deleting uploaded file:', err);
       } else {
-        console.log("Uploaded file deleted");
+        console.log('Uploaded file deleted');
       }
     });
   }
 });
 
-app.post("/upload/vocational", uploads.single("file"), (req, res) => {
+app.post('/upload/vocational', uploads.single('file'), (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
+    return res.status(400).json({ error: 'No file uploaded' });
   }
 
   try {
@@ -1235,7 +1623,7 @@ app.post("/upload/vocational", uploads.single("file"), (req, res) => {
     const sheet = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name]);
 
     // Log the uploaded data for troubleshooting
-    console.log("Uploaded sheet data:", sheet);
+    console.log('Uploaded sheet data:', sheet);
 
     // Insert data into 'voluntary-work' table
     sheet.forEach((row) => {
@@ -1264,11 +1652,11 @@ app.post("/upload/vocational", uploads.single("file"), (req, res) => {
         ],
         (err, result) => {
           if (err) {
-            console.error("Error inserting data:", err);
+            console.error('Error inserting data:', err);
             return;
           }
           console.log(
-            "Data inserted successfully into Voluntary Work table:",
+            'Data inserted successfully into Voluntary Work table:',
             result
           );
         }
@@ -1278,26 +1666,26 @@ app.post("/upload/vocational", uploads.single("file"), (req, res) => {
     // Send response after insertion
     res.json({
       message:
-        "File uploaded and data inserted successfully into Voluntary Work table",
+        'File uploaded and data inserted successfully into Voluntary Work table',
     });
   } catch (error) {
-    console.error("Error processing XLS file:", error);
-    res.status(500).json({ error: "Error processing XLS file" });
+    console.error('Error processing XLS file:', error);
+    res.status(500).json({ error: 'Error processing XLS file' });
   } finally {
     // Delete the uploaded file to save space on the server
     fs.unlink(req.file.path, (err) => {
       if (err) {
-        console.error("Error deleting uploaded file:", err);
+        console.error('Error deleting uploaded file:', err);
       } else {
-        console.log("Uploaded file deleted");
+        console.log('Uploaded file deleted');
       }
     });
   }
 });
 
-app.post("/upload/work-experience", uploads.single("file"), (req, res) => {
+app.post('/upload/work-experience', uploads.single('file'), (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
+    return res.status(400).json({ error: 'No file uploaded' });
   }
 
   try {
@@ -1307,7 +1695,7 @@ app.post("/upload/work-experience", uploads.single("file"), (req, res) => {
     const sheet = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name]);
 
     // Log the uploaded data for troubleshooting
-    console.log("Uploaded sheet data:", sheet);
+    console.log('Uploaded sheet data:', sheet);
 
     // Insert data into 'voluntary-work' table
     sheet.forEach((row) => {
@@ -1340,11 +1728,11 @@ app.post("/upload/work-experience", uploads.single("file"), (req, res) => {
         ],
         (err, result) => {
           if (err) {
-            console.error("Error inserting data:", err);
+            console.error('Error inserting data:', err);
             return;
           }
           console.log(
-            "Data inserted successfully into Voluntary Work table:",
+            'Data inserted successfully into Voluntary Work table:',
             result
           );
         }
@@ -1354,26 +1742,26 @@ app.post("/upload/work-experience", uploads.single("file"), (req, res) => {
     // Send response after insertion
     res.json({
       message:
-        "File uploaded and data inserted successfully into Voluntary Work table",
+        'File uploaded and data inserted successfully into Voluntary Work table',
     });
   } catch (error) {
-    console.error("Error processing XLS file:", error);
-    res.status(500).json({ error: "Error processing XLS file" });
+    console.error('Error processing XLS file:', error);
+    res.status(500).json({ error: 'Error processing XLS file' });
   } finally {
     // Delete the uploaded file to save space on the server
     fs.unlink(req.file.path, (err) => {
       if (err) {
-        console.error("Error deleting uploaded file:", err);
+        console.error('Error deleting uploaded file:', err);
       } else {
-        console.log("Uploaded file deleted");
+        console.log('Uploaded file deleted');
       }
     });
   }
 });
 
-app.post("/upload/citizenship", uploads.single("file"), (req, res) => {
+app.post('/upload/citizenship', uploads.single('file'), (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
+    return res.status(400).json({ error: 'No file uploaded' });
   }
 
   try {
@@ -1383,7 +1771,7 @@ app.post("/upload/citizenship", uploads.single("file"), (req, res) => {
     const sheet = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name]);
 
     // Log the uploaded data for troubleshooting
-    console.log("Uploaded sheet data:", sheet);
+    console.log('Uploaded sheet data:', sheet);
 
     // Insert data into 'voluntary-work' table
     sheet.forEach((row) => {
@@ -1398,11 +1786,11 @@ app.post("/upload/citizenship", uploads.single("file"), (req, res) => {
         [citizenshipDescription, citizenshipType, countryName],
         (err, result) => {
           if (err) {
-            console.error("Error inserting data:", err);
+            console.error('Error inserting data:', err);
             return;
           }
           console.log(
-            "Data inserted successfully into Voluntary Work table:",
+            'Data inserted successfully into Voluntary Work table:',
             result
           );
         }
@@ -1412,26 +1800,26 @@ app.post("/upload/citizenship", uploads.single("file"), (req, res) => {
     // Send response after insertion
     res.json({
       message:
-        "File uploaded and data inserted successfully into Voluntary Work table",
+        'File uploaded and data inserted successfully into Voluntary Work table',
     });
   } catch (error) {
-    console.error("Error processing XLS file:", error);
-    res.status(500).json({ error: "Error processing XLS file" });
+    console.error('Error processing XLS file:', error);
+    res.status(500).json({ error: 'Error processing XLS file' });
   } finally {
     // Delete the uploaded file to save space on the server
     fs.unlink(req.file.path, (err) => {
       if (err) {
-        console.error("Error deleting uploaded file:", err);
+        console.error('Error deleting uploaded file:', err);
       } else {
-        console.log("Uploaded file deleted");
+        console.log('Uploaded file deleted');
       }
     });
   }
 });
 
-app.post("/upload/children", uploads.single("file"), (req, res) => {
+app.post('/upload/children', uploads.single('file'), (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ error: "No file uploaded" });
+    return res.status(400).json({ error: 'No file uploaded' });
   }
 
   try {
@@ -1441,7 +1829,7 @@ app.post("/upload/children", uploads.single("file"), (req, res) => {
     const sheet = xlsx.utils.sheet_to_json(workbook.Sheets[sheet_name]);
 
     // Log the uploaded data for troubleshooting
-    console.log("Uploaded sheet data:", sheet);
+    console.log('Uploaded sheet data:', sheet);
 
     // Insert data into 'voluntary-work' table
     sheet.forEach((row) => {
@@ -1466,11 +1854,11 @@ app.post("/upload/children", uploads.single("file"), (req, res) => {
         ],
         (err, result) => {
           if (err) {
-            console.error("Error inserting data:", err);
+            console.error('Error inserting data:', err);
             return;
           }
           console.log(
-            "Data inserted successfully into Voluntary Work table:",
+            'Data inserted successfully into Voluntary Work table:',
             result
           );
         }
@@ -1480,39 +1868,28 @@ app.post("/upload/children", uploads.single("file"), (req, res) => {
     // Send response after insertion
     res.json({
       message:
-        "File uploaded and data inserted successfully into Voluntary Work table",
+        'File uploaded and data inserted successfully into Voluntary Work table',
     });
   } catch (error) {
-    console.error("Error processing XLS file:", error);
-    res.status(500).json({ error: "Error processing XLS file" });
+    console.error('Error processing XLS file:', error);
+    res.status(500).json({ error: 'Error processing XLS file' });
   } finally {
     // Delete the uploaded file to save space on the server
     fs.unlink(req.file.path, (err) => {
       if (err) {
-        console.error("Error deleting uploaded file:", err);
+        console.error('Error deleting uploaded file:', err);
       } else {
-        console.log("Uploaded file deleted");
+        console.log('Uploaded file deleted');
       }
     });
   }
 });
 
-
 //=========================
 // UPLOAD XLSX END HERE
 //=========================
 
-
-
-
-
-
-
-
-
-
 // PAGE ACCESS  CRUD START -----------------------------------------------------------------------
-
 
 // Page access
 app.get('/api/page_access/:userId/:pageId', (req, res) => {
@@ -1522,17 +1899,17 @@ app.get('/api/page_access/:userId/:pageId', (req, res) => {
 
   const query = `SELECT page_privilege FROM page_access WHERE user_id = ? AND page_id = ?`;
   db.query(query, [userId, pageId], (err, results) => {
-      if (err) {
-          console.error('Database error:', err); // Log the error
-          return res.status(500).json({ error: 'Database error' });
-      }
-      if (results.length > 0) {
-          console.log('Results:', results); // Log the results for debugging
-          // Check against the number 1 for access
-          return res.json({ hasAccess: results[0].page_privilege === 1 }); // Check against number 1
-      } else {
-          return res.json({ hasAccess: false });
-      }
+    if (err) {
+      console.error('Database error:', err); // Log the error
+      return res.status(500).json({ error: 'Database error' });
+    }
+    if (results.length > 0) {
+      console.log('Results:', results); // Log the results for debugging
+      // Check against the number 1 for access
+      return res.json({ hasAccess: results[0].page_privilege === 1 }); // Check against number 1
+    } else {
+      return res.json({ hasAccess: false });
+    }
   });
 });
 // =====================================
@@ -1569,13 +1946,17 @@ app.get('/api/pages', (req, res) => {
 // Fetch page access for a user
 app.get('/api/page_access/:userId', (req, res) => {
   const { userId } = req.params;
-  db.query('SELECT * FROM page_access WHERE user_id = ?', [userId], (err, results) => {
-    if (err) {
-      console.error('Database error:', err); // Log the error
-      return res.status(500).json({ error: 'Database error' });
+  db.query(
+    'SELECT * FROM page_access WHERE user_id = ?',
+    [userId],
+    (err, results) => {
+      if (err) {
+        console.error('Database error:', err); // Log the error
+        return res.status(500).json({ error: 'Database error' });
+      }
+      res.json(results);
     }
-    res.json(results);
-  });
+  );
 });
 
 // Insert a new page access record (grant access), but only if no matching user_id and page_id exists
@@ -1583,7 +1964,8 @@ app.post('/api/page_access', (req, res) => {
   const { user_id, page_id, page_privilege } = req.body;
 
   // Check if the record already exists
-  const checkQuery = 'SELECT * FROM page_access WHERE user_id = ? AND page_id = ?';
+  const checkQuery =
+    'SELECT * FROM page_access WHERE user_id = ? AND page_id = ?';
   db.query(checkQuery, [user_id, page_id], (err, result) => {
     if (err) {
       console.error('Database error:', err); // Log the error
@@ -1592,10 +1974,13 @@ app.post('/api/page_access', (req, res) => {
 
     if (result.length > 0) {
       // If record exists, do not insert again
-      return res.status(409).json({ message: 'Page access already exists for this user and page' });
+      return res
+        .status(409)
+        .json({ message: 'Page access already exists for this user and page' });
     } else {
       // If no record exists, insert a new one
-      const insertQuery = 'INSERT INTO page_access (user_id, page_id, page_privilege) VALUES (?, ?, ?)';
+      const insertQuery =
+        'INSERT INTO page_access (user_id, page_id, page_privilege) VALUES (?, ?, ?)';
       db.query(insertQuery, [user_id, page_id, page_privilege], (err) => {
         if (err) {
           console.error('Database error:', err); // Log the error
@@ -1611,7 +1996,8 @@ app.post('/api/page_access', (req, res) => {
 app.put('/api/page_access/:userId/:pageId', (req, res) => {
   const { userId, pageId } = req.params;
   const { page_privilege } = req.body;
-  const query = 'UPDATE page_access SET page_privilege = ? WHERE user_id = ? AND page_id = ?';
+  const query =
+    'UPDATE page_access SET page_privilege = ? WHERE user_id = ? AND page_id = ?';
   db.query(query, [page_privilege, userId, pageId], (err) => {
     if (err) {
       console.error('Database error:', err); // Log the error
@@ -1621,16 +2007,7 @@ app.put('/api/page_access/:userId/:pageId', (req, res) => {
   });
 });
 
-
-
- 
 // PAGE ACCESS  CRUD END -----------------------------------------------------------------------
-
-
-
-
-
-
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
