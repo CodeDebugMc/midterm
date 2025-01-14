@@ -444,6 +444,7 @@ const PersonalInformation = () => {
         spouseTelephone: editItem.spouseTelephone,
         fatherFirstName: editItem.fatherFirstName,
         fatherMiddleName: editItem.fatherMiddleName,
+        fatherLastName: editItem.fatherLastName,
         fatherNameExtension: editItem.fatherNameExtension,
         motherMaidenFirstName: editItem.motherMaidenFirstName,
         motherMaidenMiddleName: editItem.motherMaidenMiddleName,
@@ -540,7 +541,7 @@ const PersonalInformation = () => {
       </Box>
 
       <Container>
-        <h1>Learning and Development Table</h1>
+        <h1>Personal Information Table</h1>
 
         {/* Logout Button */}
         <Button
@@ -837,6 +838,7 @@ const PersonalInformation = () => {
               <TableCell>ID</TableCell>
               <TableCell>Firstname</TableCell>
               <TableCell>Middlename</TableCell>
+              <TableCell>Lastname</TableCell>
               <TableCell>Birthdate</TableCell>
               <TableCell>Civilstatus</TableCell>
               <TableCell>Height</TableCell>
@@ -864,7 +866,6 @@ const PersonalInformation = () => {
               <TableCell>Spouse Name Extension</TableCell>
               <TableCell>Spouse Occupation</TableCell>
               <TableCell>Spouse Employer Businessname</TableCell>
-              <TableCell>Spouse Business Address</TableCell>
               <TableCell>Spouse Telephone</TableCell>
               <TableCell>Father Firstname</TableCell>
               <TableCell>Father Middlename</TableCell>
@@ -891,6 +892,7 @@ const PersonalInformation = () => {
               <TableCell>
                 Secondary Scholarship Academic Honors Received
               </TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -1001,7 +1003,7 @@ const PersonalInformation = () => {
                   ) : (
                     item.weightKg
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
@@ -1016,7 +1018,7 @@ const PersonalInformation = () => {
                   ) : (
                     item.bloodType
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
@@ -1031,7 +1033,7 @@ const PersonalInformation = () => {
                   ) : (
                     item.gsisNum
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
@@ -1046,7 +1048,7 @@ const PersonalInformation = () => {
                   ) : (
                     item.pagibigNum
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
@@ -1061,7 +1063,7 @@ const PersonalInformation = () => {
                   ) : (
                     item.philhealthNum
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
@@ -1076,7 +1078,7 @@ const PersonalInformation = () => {
                   ) : (
                     item.sssNum
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
@@ -1091,7 +1093,7 @@ const PersonalInformation = () => {
                   ) : (
                     item.tinNum
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
@@ -1106,7 +1108,7 @@ const PersonalInformation = () => {
                   ) : (
                     item.agencyEmployeeNum
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
@@ -1121,7 +1123,22 @@ const PersonalInformation = () => {
                   ) : (
                     item.houseBlockLotNum
                   )}
-                </TableCell>{' '}
+                </TableCell>
+                <TableCell>
+                  {editItem && editItem.id === item.id ? (
+                    <TextField
+                      value={editItem.streetName} // Ensure value is a string
+                      onChange={(e) =>
+                        setEditItem({
+                          ...editItem,
+                          streetName: e.target.value,
+                        })
+                      }
+                    />
+                  ) : (
+                    item.streetName
+                  )}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
@@ -1136,7 +1153,7 @@ const PersonalInformation = () => {
                   ) : (
                     item.subdivisionOrVillage
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
@@ -1151,7 +1168,7 @@ const PersonalInformation = () => {
                   ) : (
                     item.barangayName
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
@@ -1166,7 +1183,7 @@ const PersonalInformation = () => {
                   ) : (
                     item.cityOrMunicipality
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
@@ -1181,7 +1198,22 @@ const PersonalInformation = () => {
                   ) : (
                     item.provinceName
                   )}
-                </TableCell>{' '}
+                </TableCell>
+                <TableCell>
+                  {editItem && editItem.id === item.id ? (
+                    <TextField
+                      value={editItem.zipcode} // Ensure value is a string
+                      onChange={(e) =>
+                        setEditItem({
+                          ...editItem,
+                          zipcode: e.target.value,
+                        })
+                      }
+                    />
+                  ) : (
+                    item.zipcode
+                  )}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
@@ -1196,7 +1228,7 @@ const PersonalInformation = () => {
                   ) : (
                     item.telephone
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
@@ -1211,7 +1243,7 @@ const PersonalInformation = () => {
                   ) : (
                     item.mobileNum
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
@@ -1226,7 +1258,7 @@ const PersonalInformation = () => {
                   ) : (
                     item.emailAddress
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
@@ -1241,470 +1273,416 @@ const PersonalInformation = () => {
                   ) : (
                     item.spouseFirstName
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.spouseMiddleName} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          spouseMiddleName: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.spouseMiddleName
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.spouseLastName} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          spouseLastName: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.spouseLastName
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.spouseNameExtension} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          spouseNameExtension: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.spouseNameExtension
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.spouseOccupation} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          spouseOccupation: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.spouseOccupation
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.spouseEmployerBusinessName} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          spouseEmployerBusinessName: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.spouseEmployerBusinessName
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.spouseTelephone} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          spouseTelephone: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.spouseTelephone
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.fatherFirstName} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          fatherFirstName: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.fatherFirstName
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.fatherMiddleName} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          fatherMiddleName: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.fatherMiddleName
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.fatherLastName} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          fatherLastName: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.fatherLastName
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.fatherNameExtension} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          fatherNameExtension: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.fatherNameExtension
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.motherMaidenFirstName} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          motherMaidenFirstName: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.motherMaidenFirstName
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.motherMaidenMiddleName} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          motherMaidenMiddleName: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.motherMaidenMiddleName
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.motherMaidenLastName} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          motherMaidenLastName: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.motherMaidenLastName
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.elementaryNameOfSchool} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          elementaryNameOfSchool: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.elementaryNameOfSchool
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.elementaryDegree} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          elementaryDegree: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.elementaryDegree
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.elementaryPeriodFrom} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          elementaryPeriodFrom: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    formatDate(item.elementaryPeriodFrom)
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.elementaryPeriodTo} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          elementaryPeriodTo: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    formatDate(item.elementaryPeriodTo)
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.elementaryHighestAttained} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          elementaryHighestAttained: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.elementaryHighestAttained
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.elementaryYearGraduated} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          elementaryYearGraduated: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    formatDate(item.elementaryYearGraduated)
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={
+                        editItem.elementaryScholarshipAcademicHonorsReceived
+                      } // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          elementaryScholarshipAcademicHonorsReceived:
+                            e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.elementaryScholarshipAcademicHonorsReceived
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.secondaryNameOfSchool} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          secondaryNameOfSchool: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.secondaryNameOfSchool
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.secondaryDegree} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          secondaryDegree: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.secondaryDegree
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.secondaryPeriodFrom} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          secondaryPeriodFrom: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    formatDate(item.secondaryPeriodFrom)
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.secondaryPeriodTo} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          secondaryPeriodTo: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    formatDate(item.secondaryPeriodTo)
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.secondaryHighestAttained} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          secondaryHighestAttained: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    item.secondaryHighestAttained
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={editItem.secondaryYearGraduated} // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          secondaryYearGraduated: e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
+                    formatDate(item.secondaryYearGraduated)
                   )}
-                </TableCell>{' '}
+                </TableCell>
                 <TableCell>
                   {editItem && editItem.id === item.id ? (
                     <TextField
-                      value={editItem.heightM} // Ensure value is a string
+                      value={
+                        editItem.secondaryScholarshipAcademicHonorsReceived
+                      } // Ensure value is a string
                       onChange={(e) =>
                         setEditItem({
                           ...editItem,
-                          heightM: e.target.value,
+                          secondaryScholarshipAcademicHonorsReceived:
+                            e.target.value,
                         })
                       }
                     />
                   ) : (
-                    item.heightM
-                  )}
-                </TableCell>{' '}
-                <TableCell>
-                  {editItem && editItem.id === item.id ? (
-                    <TextField
-                      value={editItem.heightM} // Ensure value is a string
-                      onChange={(e) =>
-                        setEditItem({
-                          ...editItem,
-                          heightM: e.target.value,
-                        })
-                      }
-                    />
-                  ) : (
-                    item.heightM
-                  )}
-                </TableCell>{' '}
-                <TableCell>
-                  {editItem && editItem.id === item.id ? (
-                    <TextField
-                      value={editItem.heightM} // Ensure value is a string
-                      onChange={(e) =>
-                        setEditItem({
-                          ...editItem,
-                          heightM: e.target.value,
-                        })
-                      }
-                    />
-                  ) : (
-                    item.heightM
-                  )}
-                </TableCell>{' '}
-                <TableCell>
-                  {editItem && editItem.id === item.id ? (
-                    <TextField
-                      value={editItem.heightM} // Ensure value is a string
-                      onChange={(e) =>
-                        setEditItem({
-                          ...editItem,
-                          heightM: e.target.value,
-                        })
-                      }
-                    />
-                  ) : (
-                    item.heightM
-                  )}
-                </TableCell>{' '}
-                <TableCell>
-                  {editItem && editItem.id === item.id ? (
-                    <TextField
-                      value={editItem.heightM} // Ensure value is a string
-                      onChange={(e) =>
-                        setEditItem({
-                          ...editItem,
-                          heightM: e.target.value,
-                        })
-                      }
-                    />
-                  ) : (
-                    item.heightM
+                    item.secondaryScholarshipAcademicHonorsReceived
                   )}
                 </TableCell>
                 <TableCell>
