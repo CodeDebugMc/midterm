@@ -162,10 +162,6 @@ const PersonalInformation = () => {
       setMessageType('error');
     }
   };
-  // Fetch all voluntary-work on component mount
-  useEffect(() => {
-    fetchItems();
-  }, []);
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -178,6 +174,11 @@ const PersonalInformation = () => {
     );
     setData(response.data);
   };
+
+  // Fetch all voluntary-work on component mount
+  useEffect(() => {
+    fetchItems();
+  }, []);
 
   // Add new item
   const addItem = async () => {

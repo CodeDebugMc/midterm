@@ -141,7 +141,7 @@ const Pds2 = () => {
                   <br />
                   SPECIAL LAWS/ CES/ CSEE
                   <br />
-                  BARANGAY ELIGIBILITY / DRIVER'S LICENSE
+                  BARANGAY ELIGIBILITY / DRIVER&apos;S LICENSE
                 </td>
                 <td
                   colSpan="2"
@@ -426,7 +426,7 @@ const Pds2 = () => {
                   <br />
                   STEP (Format
                   <br />
-                  "00-0")/
+                  &quot;00-0&quot;)/
                   <br />
                   INCREMENT
                 </td>
@@ -456,7 +456,7 @@ const Pds2 = () => {
                     textAlign: 'center',
                   }}
                 >
-                  GOV'T
+                  GOV&apos;T
                   <br />
                   SERVICE
                   <br />
@@ -499,7 +499,7 @@ const Pds2 = () => {
                     border: '1px solid black',
                   }}
                 >
-                  THIS IS
+                  &nbsp;
                 </td>
                 <td
                   colSpan="2"
